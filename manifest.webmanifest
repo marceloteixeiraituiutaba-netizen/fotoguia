@@ -1,0 +1,15 @@
+{
+  "name": "FotoGuia 3D",
+  "short_name": "FotoGuia",
+  "description": "Guia de enquadramento e ângulo para fotos de produto 3:4 e escaneamento 3D.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0d10",
+  "theme_color": "#0b0d10",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

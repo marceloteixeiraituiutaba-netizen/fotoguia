@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0d10">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>FotoGuia 3D</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Tudo é carregado da própria pasta do app; nada pode ser carregado ou enviado para outros sites. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob: mediastream:; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <script src="js/pre-tf.js" defer></script>
+  <script src="vendor/tf.min.js" defer></script>
+  <script src="vendor/coco-ssd.min.js" defer></script>
+  <script src="vendor/jszip.min.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+
+  <!-- Tela inicial -->
+  <section id="start" class="start">
+    <div class="start-card">
+      <img src="icons/icon.svg" alt="" class="start-logo">
+      <h1>FotoGuia 3D</h1>
+      <p class="lead">Fotos de produto padronizadas em <b>3:4</b> com guia de enquadramento e de ângulo — e captura em anéis para gerar modelos 3D.</p>
+
+      <label class="field">
+        <span>Sessão</span>
+        <select id="startPlan"></select>
+      </label>
+
+      <label class="field">
+        <span>Como você vai fotografar?</span>
+        <select id="startMode">
+          <option value="walk">Andar ao redor do objeto</option>
+          <option value="turntable">Girar o objeto (prato giratório)</option>
+        </select>
+      </label>
+
+      <button id="btnStart" class="btn primary big">Iniciar câmera</button>
+      <p class="hint">Permita o acesso à câmera e aos sensores de movimento. Funciona em HTTPS (ou localhost).</p>
+      <p id="startError" class="error" hidden></p>
+    </div>
+  </section>
+
+  <!-- App -->
+  <main id="app" class="app" hidden>
+    <header class="topbar">
+      <button id="btnPlan" class="chip" aria-label="Trocar sessão"><span id="planName">—</span> ▾</button>
+      <div class="progress"><span id="progressText">0/0</span><div class="bar"><i id="progressBar"></i></div></div>
+      <button id="btnSettings" class="icon-btn" aria-label="Configurações">⚙</button>
+    </header>
+
+    <section class="viewfinder" id="viewfinder">
+      <video id="video" playsinline muted autoplay></video>
+      <canvas id="overlay"></canvas>
+      <div class="hud">
+        <div id="instruction" class="instruction">Carregando…</div>
+        <div class="checks">
+          <span class="check" id="ckFrame">Enquadramento</span>
+          <span class="check" id="ckAngle">Ângulo</span>
+          <span class="check" id="ckHeight">Altura</span>
+          <span class="check" id="ckLevel">Nível</span>
+        </div>
+      </div>
+      <div id="modelStatus" class="model-status">Carregando IA…</div>
+      <div id="flash" class="flash"></div>
+    </section>
+
+    <section class="controls">
+      <div class="target-info">
+        <div class="target-label" id="targetLabel">—</div>
+        <div class="target-sub" id="targetSub">—</div>
+      </div>
+      <div class="control-row">
+        <canvas id="radar" width="240" height="240" aria-label="Mapa de posições"></canvas>
+        <button id="btnShutter" class="shutter" aria-label="Fotografar"><i></i></button>
+        <div class="side">
+          <button id="btnGallery" class="thumb-btn" aria-label="Galeria"><img id="lastThumb" alt=""><span id="shotCount">0</span></button>
+          <button id="btnAuto" class="chip small" aria-pressed="false">Auto</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Galeria -->
+  <div id="gallery" class="sheet" hidden>
+    <div class="sheet-card">
+      <header class="sheet-head">
+        <h2>Fotos da sessão</h2>
+        <button class="icon-btn" data-close>✕</button>
+      </header>
+      <div id="galleryGrid" class="gallery-grid"></div>
+      <div class="sheet-actions">
+        <button id="btnShare" class="btn">Compartilhar</button>
+        <button id="btnZip" class="btn primary">Baixar ZIP (fotos + poses)</button>
+        <button id="btnNewSession" class="btn danger">Nova sessão</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configurações -->
+  <div id="settings" class="sheet" hidden>
+    <div class="sheet-card">
+      <header class="sheet-head">
+        <h2>Configurações</h2>
+        <button class="icon-btn" data-close>✕</button>
+      </header>
+      <div class="settings-list">
+        <label class="field"><span>Sessão</span><select id="setPlan"></select></label>
+        <label class="field"><span>Modo</span>
+          <select id="setMode">
+            <option value="walk">Andar ao redor do objeto</option>
+            <option value="turntable">Girar o objeto (prato giratório)</option>
+          </select>
+        </label>
+        <label class="field"><span>Resolução de saída (3:4)</span>
+          <select id="setRes">
+            <option value="max">Máxima da câmera</option>
+            <option value="2048">1536 × 2048</option>
+            <option value="1600">1200 × 1600</option>
+            <option value="1200">900 × 1200</option>
+          </select>
+        </label>
+        <label class="toggle"><input type="checkbox" id="setGrid" checked> Grade de terços</label>
+        <label class="toggle"><input type="checkbox" id="setRequireObj" checked> Exigir objeto detectado para captura automática</label>
+        <label class="toggle"><input type="checkbox" id="setSound" checked> Vibrar ao fotografar</label>
+        <button id="btnCalibrate" class="btn">Definir posição atual como “Frente” (0°)</button>
+        <p class="hint">Dica: toque num objeto destacado no visor para travá‑lo. Toque fora para destravar. Se o objeto não for reconhecido pela IA, use apenas o quadro‑alvo como guia.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+</body>
+</html>

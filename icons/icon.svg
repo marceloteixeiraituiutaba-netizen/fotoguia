@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#0b0d10"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- moldura 3:4 -->
+    <path d="M168 120h-36v36M344 120h36v36M168 392h-36v-36M344 392h36v-36" stroke="#34d399" stroke-width="22"/>
+    <!-- cubo -->
+    <path d="M256 186l70 38v80l-70 38-70-38v-80z" stroke="#38bdf8" stroke-width="18"/>
+    <path d="M186 224l70 38 70-38M256 262v80" stroke="#38bdf8" stroke-width="18"/>
+    <!-- órbita -->
+    <ellipse cx="256" cy="264" rx="150" ry="46" stroke="#fbbf24" stroke-width="10" stroke-dasharray="18 22"/>
+  </g>
+</svg>
